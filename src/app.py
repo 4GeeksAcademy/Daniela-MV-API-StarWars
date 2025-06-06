@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User
+from models import db, User,Characters,Planets,Vehicles
 #from models import Person
 
 app = Flask(__name__)
@@ -36,14 +36,63 @@ def handle_invalid_usage(error):
 def sitemap():
     return generate_sitemap(app)
 
+# GETS
+# all users
 @app.route('/user', methods=['GET'])
-def handle_hello():
+def get_users():
+
+    query_results= User.query.all()
+    results= list(map(lambda item: item.serialize(), query_results))
 
     response_body = {
-        "msg": "Hello, this is your GET /user response "
+        "msg": "Everything its ok",
+        "result": results
     }
 
     return jsonify(response_body), 200
+
+# user by id
+@app.route('/user/<int:user_id', methods=['GET'])
+def user_by_id(user_id):
+
+    query_user= User.query.filter_by(id=user_id).first()
+
+    response_body = {
+        "msg": "Everything its ok",
+        "result": query_user.serialize
+    }
+
+    return jsonify(response_body), 200
+
+# All Characters
+@app.route('/characters>', methods=['GET'])
+def get_characters():
+
+    query_results= Characters.query.all()
+    results= list(map(lambda item: item.serialize(), query_results))
+
+    response_body = {
+        "msg": "Everything its ok",
+        "result": results
+    }
+
+    return jsonify(response_body), 200
+
+
+# Characters by id
+@app.route('/character/<int:character_id>', methods=['GET'])
+def character_by_id(character_id):
+
+    query_character= Characters.query.filter_by(id=character_id).first()
+
+    response_body = {
+        "msg": "Everything its ok",
+        "result": query_character.serialize
+    }
+
+    return jsonify(response_body), 200
+
+
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
