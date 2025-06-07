@@ -40,43 +40,69 @@ def sitemap():
 # all users
 @app.route('/user', methods=['GET'])
 def get_users():
+  try:
+      query_results= User.query.all()
+      results= list(map(lambda item: item.serialize(), query_results))
+      if not query_results:
+           return jsonify({"msg": "Usuario no encontrado"}), 400
 
-    query_results= User.query.all()
-    results= list(map(lambda item: item.serialize(), query_results))
-
-    response_body = {
+      response_body = {
         "msg": "Everything its ok",
         "result": results
     }
 
-    return jsonify(response_body), 200
+      return jsonify(response_body), 200
+  
+  except Exception as e: 
+      print(f"Erro al obtener usuarios: {e}")
+      return jsonify({"msg": "Internal Server Error", "error": str(e)}), 500
+  
+  
 
 # user by id
 @app.route('/user/<int:user_id', methods=['GET'])
 def user_by_id(user_id):
+  try:
+       query_user= User.query.filter_by(id=user_id).first()
+       
+       if not query_user:
+           return jsonify({"msg": "Usuario no encontrado"}), 400
+       
+       response_body = {
+           "msg": "Everything its ok",
+           "result": query_user.serialize
+       }
+   
+       return jsonify(response_body), 200
+  
+  except Exception as e: 
+      print(f"Erro al obtener usuario: {e}")
+      return jsonify({"msg": "Internal Server Error", "error": str(e)}), 500
+  
 
-    query_user= User.query.filter_by(id=user_id).first()
-
-    response_body = {
-        "msg": "Everything its ok",
-        "result": query_user.serialize
-    }
-
-    return jsonify(response_body), 200
 
 # All Characters
 @app.route('/characters>', methods=['GET'])
 def get_characters():
+  try:
 
-    query_results= Characters.query.all()
-    results= list(map(lambda item: item.serialize(), query_results))
+       query_results= Characters.query.all()
+       if not query_results:
+           return jsonify({"msg": "Personaje no encontrado"}), 400
+       
+       results= list(map(lambda item: item.serialize(), query_results))
+ 
+       response_body = {
+         "msg": "Everything its ok",
+         "result": results
+        }
 
-    response_body = {
-        "msg": "Everything its ok",
-        "result": results
-    }
+       return jsonify(response_body), 200
+    
+  except Exception as e: 
+      print(f"Erro al obtener personaje: {e}")
+      return jsonify({"msg": "Internal Server Error", "error": str(e)}), 500
 
-    return jsonify(response_body), 200
 
 
 # Characters by id
@@ -92,6 +118,50 @@ def character_by_id(character_id):
 
     return jsonify(response_body), 200
 
+
+# All Planets
+@app.route('/planets>', methods=['GET'])
+def get_planets():
+  try:
+
+       query_results= Planets.query.all()
+       if not query_results:
+           return jsonify({"msg": "Error en la solicitud"}), 400
+       
+       results= list(map(lambda item: item.serialize(), query_results))
+ 
+       response_body = {
+         "msg": "Everything its ok",
+         "result": results
+        }
+
+       return jsonify(response_body), 200
+    
+  except Exception as e: 
+      print(f"Erro al obtener planetas: {e}")
+      return jsonify({"msg": "Internal Server Error", "error": str(e)}), 500
+
+
+
+# Planets by id
+@app.route('/planet/<int:planet_id>', methods=['GET'])
+def planet_by_id(planet_id):
+  try:
+       query_planet= Planets.query.filter_by(id=planet_id).first()
+       
+       if not query_planet:
+           return jsonify({"msg": "No se encontró planeta"}), 400
+       
+       response_body = {
+           "msg": "Everything its ok",
+           "result": query_planet.serialize
+       }
+   
+       return jsonify(response_body), 200
+  
+  except Exception as e: 
+      print(f"Erro al obtener planeta: {e}")
+      return jsonify({"msg": "Internal Server Error", "error": str(e)}), 500
 
 
 # this only runs if `$ python src/app.py` is executed
