@@ -108,16 +108,21 @@ def get_characters():
 # Characters by id
 @app.route('/character/<int:character_id>', methods=['GET'])
 def character_by_id(character_id):
+   try:
+       query_character= Characters.query.filter_by(id=character_id).first()
 
-    query_character= Characters.query.filter_by(id=character_id).first()
-
-    response_body = {
-        "msg": "Everything its ok",
-        "result": query_character.serialize
-    }
-
-    return jsonify(response_body), 200
-
+       if not query_character:
+           return jsonify({"msg": "Personaje no encontrado"}), 400
+   
+       response_body = {
+           "msg": "Everything its ok",
+           "result": query_character.serialize
+       }
+   
+       return jsonify(response_body), 200
+   except Exception as e: 
+      print(f"Erro al obtener usuario: {e}")
+      return jsonify({"msg": "Internal Server Error", "error": str(e)}), 500
 
 # All Planets
 @app.route('/planets>', methods=['GET'])
@@ -163,6 +168,36 @@ def planet_by_id(planet_id):
       print(f"Erro al obtener planeta: {e}")
       return jsonify({"msg": "Internal Server Error", "error": str(e)}), 500
 
+
+#POST
+#POST usuario
+@app.route('/user', methods=['POST'])
+def create_user():
+    data=reques.get_jason()
+
+    if not data:
+        return jsonify({"msg": "No se proporcionaron datos"}),400
+    email = data.get("email")
+    password = data.get("password")
+    is_active = data.get("is_active", False)
+
+    existing_user = User.query.filter_by(email=email).first()
+    if existing_user:
+        return jsonify({"msg": "Ya existe un usuario con este email"}), 409
+    
+    new_user = User(
+        email=email,
+        password=password,
+        is_active=is_active
+    )
+    db.session.add(new_user)
+
+    try:
+        db.session.commit()
+        return jsonify(new_user.serialize()),201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"msg": f'Internal Server Error, "error": {str(e)}'}), 500
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
