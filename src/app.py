@@ -173,7 +173,7 @@ def planet_by_id(planet_id):
 #POST usuario
 @app.route('/user', methods=['POST'])
 def create_user():
-    data=reques.get_jason()
+    data=request.get_jason()
 
     if not data:
         return jsonify({"msg": "No se proporcionaron datos"}),400

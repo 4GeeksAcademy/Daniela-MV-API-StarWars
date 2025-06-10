@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import String, Boolean
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import String, Boolean,ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column,relationship
 
 db = SQLAlchemy()
 
@@ -11,6 +11,7 @@ class User(db.Model):
     email: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
     password: Mapped[str] = mapped_column(nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean(), nullable=False)
+    favorite_character: Mapped[list["Fav_character"]]=relationship(back_populates="user")
 
 
     def serialize(self):
@@ -30,6 +31,7 @@ class Characters(db.Model):
     hair_color: Mapped[str] = mapped_column(String(120), nullable=False)
     eye_color: Mapped[str] = mapped_column(String(120), nullable=False)
     birth_year: Mapped[str] = mapped_column(String(120), nullable=False)
+    favorite_by_links: Mapped[list["Fav_character"]]=relationship(back_populates="characters")
 
     def serialize(self):
         return {
@@ -78,3 +80,22 @@ class Vehicles(db.Model):
             "manufacturer": self.manufacturer,
             "passengers": self.passengers,
         }
+
+class Fav_character(db.Model):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
+    character_id: Mapped[int] = mapped_column(ForeignKey("character.id"))
+    user: Mapped['User'] = relationship(back_populates="favorite Character")
+    character: Mapped['Characters'] = relationship(back_populates='favorite_by_links')
+    
+    
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "model": self.model,
+            "cargo_capacity": self.cargo_capacity,
+            "manufacturer": self.manufacturer,
+            "passengers": self.passengers,
+        }      
