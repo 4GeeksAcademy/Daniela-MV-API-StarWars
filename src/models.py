@@ -12,6 +12,7 @@ class User(db.Model):
     password: Mapped[str] = mapped_column(nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean(), nullable=False)
     favorite_character: Mapped[list["Fav_character"]]=relationship(back_populates="user")
+    favorite_planet:Mapped[list["Fav_planet"]]=relationship(back_populates="user")
 
 
     def serialize(self):
@@ -51,6 +52,7 @@ class Planets(db.Model):
     diameter: Mapped[int] = mapped_column(nullable=False)
     terrain: Mapped[str] = mapped_column(String(120), nullable=False)
     population: Mapped[int] = mapped_column(nullable=False)
+    favorite_planet_by_links: Mapped[list["Fav_planet"]]=relationship(back_populates="planets")
 
     def serialize(self):
         return {
@@ -84,18 +86,14 @@ class Vehicles(db.Model):
 class Fav_character(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
-    character_id: Mapped[int] = mapped_column(ForeignKey("character.id"))
-    user: Mapped['User'] = relationship(back_populates="favorite Character")
+    character_id: Mapped[int] = mapped_column(ForeignKey("characters.id"))
+    user: Mapped['User'] = relationship(back_populates="favorite_character")
     character: Mapped['Characters'] = relationship(back_populates='favorite_by_links')
-    
-    
 
-    def serialize(self):
-        return {
-            "id": self.id,
-            "name": self.name,
-            "model": self.model,
-            "cargo_capacity": self.cargo_capacity,
-            "manufacturer": self.manufacturer,
-            "passengers": self.passengers,
-        }      
+    
+class Fav_planet(db.Model):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
+    planet_id: Mapped[int] = mapped_column(ForeignKey("planets.id"))
+    user: Mapped['User'] = relationship(back_populates="favorite_planet")
+    planet: Mapped['Planets'] = relationship(back_populates='favorite_planet_by_links')   

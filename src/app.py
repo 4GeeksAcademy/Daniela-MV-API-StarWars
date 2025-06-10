@@ -9,6 +9,7 @@ from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
 from models import db, User,Characters,Planets,Vehicles
+from flask import request
 #from models import Person
 
 app = Flask(__name__)
@@ -54,29 +55,29 @@ def get_users():
       return jsonify(response_body), 200
   
   except Exception as e: 
-      print(f"Erro al obtener usuarios: {e}")
+      print(f"Error al obtener usuarios: {e}")
       return jsonify({"msg": "Internal Server Error", "error": str(e)}), 500
   
   
 
 # user by id
-@app.route('/user/<int:user_id', methods=['GET'])
+@app.route('/user/<int:user_id>', methods=['GET'])
 def user_by_id(user_id):
   try:
        query_user= User.query.filter_by(id=user_id).first()
        
        if not query_user:
-           return jsonify({"msg": "Usuario no encontrado"}), 400
+           return jsonify({"msg": "Usuario no encontrado"}), 404
        
        response_body = {
            "msg": "Everything its ok",
-           "result": query_user.serialize
+           "result": query_user.serialize()
        }
    
        return jsonify(response_body), 200
   
   except Exception as e: 
-      print(f"Erro al obtener usuario: {e}")
+      print(f"Error al obtener usuario: {e}")
       return jsonify({"msg": "Internal Server Error", "error": str(e)}), 500
   
 
@@ -100,7 +101,7 @@ def get_characters():
        return jsonify(response_body), 200
     
   except Exception as e: 
-      print(f"Erro al obtener personaje: {e}")
+      print(f"Error al obtener personaje: {e}")
       return jsonify({"msg": "Internal Server Error", "error": str(e)}), 500
 
 
@@ -121,7 +122,7 @@ def character_by_id(character_id):
    
        return jsonify(response_body), 200
    except Exception as e: 
-      print(f"Erro al obtener usuario: {e}")
+      print(f"Error al obtener usuario: {e}")
       return jsonify({"msg": "Internal Server Error", "error": str(e)}), 500
 
 # All Planets
@@ -143,7 +144,7 @@ def get_planets():
        return jsonify(response_body), 200
     
   except Exception as e: 
-      print(f"Erro al obtener planetas: {e}")
+      print(f"Error al obtener planetas: {e}")
       return jsonify({"msg": "Internal Server Error", "error": str(e)}), 500
 
 
@@ -165,8 +166,32 @@ def planet_by_id(planet_id):
        return jsonify(response_body), 200
   
   except Exception as e: 
-      print(f"Erro al obtener planeta: {e}")
+      print(f"Error al obtener planeta: {e}")
       return jsonify({"msg": "Internal Server Error", "error": str(e)}), 500
+
+
+# All Vehicles
+@app.route('/vehicles', methods=['GET'])
+def get_vehicles():
+  try:
+
+       query_results= Vehicles.query.all()
+       if not query_results:
+           return jsonify({"msg": "Error en la solicitud"}), 400
+       
+       results= list(map(lambda item: item.serialize(), query_results))
+ 
+       response_body = {
+         "msg": "Everything its ok",
+         "result": results
+        }
+
+       return jsonify(response_body), 200
+    
+  except Exception as e: 
+      print(f"Error al obtener vehículos: {e}")
+      return jsonify({"msg": "Internal Server Error", "error": str(e)}), 500
+
 
 
 #POST
@@ -198,6 +223,22 @@ def create_user():
     except Exception as e:
         db.session.rollback()
         return jsonify({"msg": f'Internal Server Error, "error": {str(e)}'}), 500
+
+
+# @app.route('/planets/<int:planet_id>', methods=['POST'])
+# def favorite_planet(planet_id):
+#     data=request.get_jason()
+    
+#     if not data or "user_id" not in data or "planet_id" not in data:
+#      return {"error": "Faltan datos obligatorios"}, 400
+
+# new_planet_favorite = Planets(
+#     user=user,
+#     user_id=user_id,
+#     planet_id=planet_id
+# )
+# db.session.add(new_user)
+
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
