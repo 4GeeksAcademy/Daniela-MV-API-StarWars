@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User,Characters,Planets,Vehicles
+from models import db, User,Characters,Planets,Vehicles,Fav_planet
 from flask import request
 #from models import Person
 
@@ -225,19 +225,29 @@ def create_user():
         return jsonify({"msg": f'Internal Server Error, "error": {str(e)}'}), 500
 
 
+@app.route('/favorites/planets', methods=['POST'])
+def add_favorite_planet():
+    data = request.get_json()
+    if not data or not data.get('user_id') or not data.get('planet_id'):
+        return jsonify({"error": "Faltan datos obligatorios"}), 400
+
+    new_fav = Fav_planet(user_id=data['user_id'], planet_id=data['planet_id'], people_id=None)
+    db.session.add(new_fav)
+    db.session.commit()
+    return jsonify(new_fav.serialize()), 201
 # @app.route('/planets/<int:planet_id>', methods=['POST'])
 # def favorite_planet(planet_id):
-#     data=request.get_jason()
-    
-#     if not data or "user_id" not in data or "planet_id" not in data:
-#      return {"error": "Faltan datos obligatorios"}, 400
+#       data=request.get_jason()
+   
+#       if not data or "user_id" not in data or "planet_id" not in data:
+#         return {"error": "Faltan datos obligatorios"}, 400
 
 # new_planet_favorite = Planets(
-#     user=user,
-#     user_id=user_id,
-#     planet_id=planet_id
-# )
-# db.session.add(new_user)
+#      user=user,
+#      user_id=user_id,
+#      planet_id=planet_id
+#  )
+#      db.session.add(new_user)
 
 
 # this only runs if `$ python src/app.py` is executed
