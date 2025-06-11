@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User,Characters,Planets,Vehicles,Fav_planet
+from models import db, User,Characters,Planets,Vehicles,Fav_planet,Fav_character
 from flask import request
 #from models import Person
 
@@ -225,30 +225,35 @@ def create_user():
         return jsonify({"msg": f'Internal Server Error, "error": {str(e)}'}), 500
 
 
-@app.route('/favorites/planets', methods=['POST'])
+@app.route('user/<int:user_id>/favorites/planet/<int:planet_id>', methods=['POST'])
 def add_favorite_planet():
     data = request.get_json()
-    if not data or not data.get('user_id') or not data.get('planet_id'):
+    if not data or not data.get('user_id') or not data.get('planet_id') or not data.get('planet'):
         return jsonify({"error": "Faltan datos obligatorios"}), 400
 
-    new_fav = Fav_planet(user_id=data['user_id'], planet_id=data['planet_id'], people_id=None)
-    db.session.add(new_fav)
+    new_planet_fav = Fav_planet(user_id=data['user_id'], planet_id=data['planet_id'], planet=data['planet'])
+    db.session.add(new_planet_fav)
     db.session.commit()
-    return jsonify(new_fav.serialize()), 201
-# @app.route('/planets/<int:planet_id>', methods=['POST'])
-# def favorite_planet(planet_id):
-#       data=request.get_jason()
-   
-#       if not data or "user_id" not in data or "planet_id" not in data:
-#         return {"error": "Faltan datos obligatorios"}, 400
+    return jsonify(new_planet_fav.serialize()), 201
 
-# new_planet_favorite = Planets(
-#      user=user,
-#      user_id=user_id,
-#      planet_id=planet_id
-#  )
-#      db.session.add(new_user)
 
+@app.route('/favorites/character', methods=['POST'])
+def add_favorite_character(user_id, character_id):
+    data = request.get_json()
+    if not data or not data.get(user_id=user_id) or not data.get(character_id=character_id):
+        return jsonify({"error": "Faltan datos obligatorios"}), 400
+
+    new_character_fav = Fav_character(user_id=data['user_id'], character_id=data['character_id'])
+    db.session.add(new_character_fav)
+    db.session.commit()
+    return jsonify(new_character_fav.serialize()), 201
+
+
+#DELETE
+#Delete Character
+@app.route('/favorites/character/<int:user_id>/<int:character_id>', methods=['DELETE'])
+def delete_favorite_character(user_id, character_id):
+    favorite_character=Fav_character.query.filter_by(user_id=user_id, character_id=character_id)
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
