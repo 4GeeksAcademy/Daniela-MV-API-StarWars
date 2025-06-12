@@ -225,7 +225,7 @@ def create_user():
         return jsonify({"msg": f'Internal Server Error, "error": {str(e)}'}), 500
 
 
-@app.route('user/<int:user_id>/favorites/planet/<int:planet_id>', methods=['POST'])
+@app.route('/user/<int:user_id>/favorites/planet/<int:planet_id>', methods=['POST'])
 def add_favorite_planet():
     data = request.get_json()
     if not data or not data.get('user_id') or not data.get('planet_id') or not data.get('planet'):
@@ -254,9 +254,46 @@ def add_favorite_character(user_id, character_id):
 
 #DELETE
 #Delete Character
-@app.route('/favorites/character/<int:user_id>/<int:character_id>', methods=['DELETE'])
-def delete_favorite_character(user_id, character_id):
-    favorite_character=Fav_character.query.filter_by(user_id=user_id, character_id=character_id)
+
+@app.route('/<int:user_id>/favorites_characters/<int:character_id>', methods=['DELETE'])
+def delete_fav_character(user_id, character_id):
+    user = User.query.get(user_id)
+    character = Characters.query.get(character_id)
+
+    if not user:
+        return jsonify({'msg': 'Usuario no encontrado'}), 404
+    if not character:
+        return jsonify({'msg': 'Personaje no encontrado'}), 404
+
+    fav_character =Fav_character.query.filter_by(
+        user_id=user_id, character_id=character_id).first()
+    if not fav_character:
+        return jsonify({'msg': f'{character.name} no encontrado en la lista'}), 404
+
+    db.session.delete(fav_character)
+    db.session.commit()
+    return jsonify({'msg': f'{character.name} a sido eliminado de la lista'})
+
+#Delete Planet
+@app.route('/<int:user_id>/favorites_planet/<int:planet_id>', methods=['DELETE'])
+def delete_fav_planet(user_id, planet_id):
+    user = User.query.get(user_id)
+    planet = Planets.query.get(planet_id)
+
+    if not user:
+        return jsonify({'msg': 'Usuario no encontrado'}), 404
+    if not planet:
+        return jsonify({'msg': 'Planeta no encontrado'}), 404
+
+    fav_planet =Fav_planet.query.filter_by(
+        user_id=user_id, planet_id=planet_id).first()
+    if not fav_planet:
+        return jsonify({'msg': f'{planet.name} no encontrado en la lista'}), 404
+
+    db.session.delete(fav_planet)
+    db.session.commit()
+    return jsonify({'msg': f'{planet.name} a sido eliminado de la lista'})
+    
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
