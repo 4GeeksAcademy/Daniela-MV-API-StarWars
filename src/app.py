@@ -237,19 +237,27 @@ def add_favorite_planet():
     return jsonify(new_planet_fav.serialize()), 201
 
 
-@app.route('/user/<int:user_id>/favorites/character/<int:character_id>', methods=['POST'])
+@app.route('/user/<int:user_id>/favorites_characters/<int:character_id>', methods=['POST'])
 def add_favorite_character(user_id, character_id):
-    data = request.get_json()
-    if not user_id or not character_id:
-        return jsonify({"error": "Faltan datos obligatorios"}), 400
-    # if not data or not data.get(user_id=user_id) or not data.get(character_id=character_id):
-    #     return jsonify({"error": "Faltan datos obligatorios"}), 400
+    user = User.query.get(user_id)
+    character = Characters.query.get(character_id)
 
-    # new_character_fav = Fav_character(user_id=data['user_id'], character_id=data['character_id'])
-    new_character_fav = Fav_character(user_id=user_id, character_id=character_id)
-    db.session.add(new_character_fav)
-    db.session.commit()
-    return jsonify(new_character_fav.serialize()), 201
+    if not user:
+        return jsonify({'msg': 'Usuario no encontrado'}), 404
+    if not character:
+        return jsonify({'msg': 'Personaje no encontrado'}), 404
+
+    existing_fav = Fav_character.query.filter_by(
+        user_id=user_id, character_id=character_id).first()
+    if existing_fav:
+        return jsonify({'msg': f'{character.name} ya está en tu lista de favoritos'}), 400
+
+    else:
+        new_fav_character = Fav_character(
+            user_id=user_id, character_id=character_id)
+        db.session.add(new_fav_character)
+        db.session.commit()
+        return jsonify(new_character_fav.serialize()), 201
 
 
 #DELETE
