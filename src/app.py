@@ -237,13 +237,16 @@ def add_favorite_planet():
     return jsonify(new_planet_fav.serialize()), 201
 
 
-@app.route('/favorites/character', methods=['POST'])
+@app.route('/user/<int:user_id>/favorites/character/<int:character_id>', methods=['POST'])
 def add_favorite_character(user_id, character_id):
     data = request.get_json()
-    if not data or not data.get(user_id=user_id) or not data.get(character_id=character_id):
+    if not user_id or not character_id:
         return jsonify({"error": "Faltan datos obligatorios"}), 400
+    # if not data or not data.get(user_id=user_id) or not data.get(character_id=character_id):
+    #     return jsonify({"error": "Faltan datos obligatorios"}), 400
 
-    new_character_fav = Fav_character(user_id=data['user_id'], character_id=data['character_id'])
+    # new_character_fav = Fav_character(user_id=data['user_id'], character_id=data['character_id'])
+    new_character_fav = Fav_character(user_id=user_id, character_id=character_id)
     db.session.add(new_character_fav)
     db.session.commit()
     return jsonify(new_character_fav.serialize()), 201
