@@ -43,9 +43,10 @@ def sitemap():
 def get_users():
   try:
       query_results= User.query.all()
-      results= list(map(lambda item: item.serialize(), query_results))
-      if not query_results:
-           return jsonify({"msg": "Usuario no encontrado"}), 400
+      results=[item.serialize() for item in query_results]
+    #   results= list(map(lambda item: item.serialize(), query_results))
+    #   if not query_results:
+    #        return jsonify({"msg": "Usuario no encontrado"}), 400
 
       response_body = {
         "msg": "Everything its ok",
@@ -257,7 +258,7 @@ def add_favorite_character(user_id, character_id):
             user_id=user_id, character_id=character_id)
         db.session.add(new_fav_character)
         db.session.commit()
-        return jsonify(new_character_fav.serialize()), 201
+        return jsonify(new_fav_character.serialize()), 201
 
 
 #DELETE
