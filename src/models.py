@@ -32,7 +32,7 @@ class Characters(db.Model):
     hair_color: Mapped[str] = mapped_column(String(120), nullable=False)
     eye_color: Mapped[str] = mapped_column(String(120), nullable=False)
     birth_year: Mapped[str] = mapped_column(String(120), nullable=False)
-    favorite_by_links: Mapped[list["Fav_character"]]=relationship(back_populates="characters")
+    favorite_by_links: Mapped[list["Fav_character"]]=relationship(back_populates="character")
 
     def serialize(self):
         return {
@@ -52,7 +52,7 @@ class Planets(db.Model):
     diameter: Mapped[int] = mapped_column(nullable=False)
     terrain: Mapped[str] = mapped_column(String(120), nullable=False)
     population: Mapped[int] = mapped_column(nullable=False)
-    favorite_planet_by_links: Mapped[list["Fav_planet"]]=relationship(back_populates="planets")
+    favorite_planet_by_links: Mapped[list["Fav_planet"]]=relationship(back_populates="planet")
 
     def serialize(self):
         return {

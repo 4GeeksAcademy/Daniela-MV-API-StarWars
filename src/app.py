@@ -199,10 +199,12 @@ def get_vehicles():
 #POST usuario
 @app.route('/user', methods=['POST'])
 def create_user():
-    data=request.get_jason()
+    data=request.get_json()
 
     if not data:
         return jsonify({"msg": "No se proporcionaron datos"}),400
+    name = data.get("name")
+    user_name = data.get("user_name")
     email = data.get("email")
     password = data.get("password")
     is_active = data.get("is_active", False)
@@ -212,6 +214,8 @@ def create_user():
         return jsonify({"msg": "Ya existe un usuario con este email"}), 409
     
     new_user = User(
+        name=name,
+        user_name=user_name,
         email=email,
         password=password,
         is_active=is_active
