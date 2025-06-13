@@ -228,18 +228,31 @@ def create_user():
     except Exception as e:
         db.session.rollback()
         return jsonify({"msg": f'Internal Server Error, "error": {str(e)}'}), 500
-
+    
 
 @app.route('/user/<int:user_id>/favorites/planet/<int:planet_id>', methods=['POST'])
-def add_favorite_planet():
+def add_favorite_planet(user_id, planet_id):
     data = request.get_json()
-    if not data or not data.get('user_id') or not data.get('planet_id') or not data.get('planet'):
-        return jsonify({"error": "Faltan datos obligatorios"}), 400
 
-    new_planet_fav = Fav_planet(user_id=data['user_id'], planet_id=data['planet_id'], planet=data['planet'])
+    if not data or not data.get('planet'):
+        return jsonify({"error": "Falta el nombre del planeta"}), 400
+
+    new_planet_fav = Fav_planet(user_id=user_id, planet_id=planet_id, planet=data['planet'])
     db.session.add(new_planet_fav)
     db.session.commit()
+
     return jsonify(new_planet_fav.serialize()), 201
+
+# @app.route('/user/<int:user_id>/favorites/planet/<int:planet_id>', methods=['POST'])
+# def add_favorite_planet(user_id, planet_id):
+#     data = request.get_json()
+#     if not data or not data.get('user_id') or not data.get('planet_id') or not data.get('planet'):
+#         return jsonify({"error": "Faltan datos obligatorios"}), 400
+
+#     new_planet_fav = Fav_planet(user_id=data['user_id'], planet_id=data['planet_id'], planet=data['planet'])
+#     db.session.add(new_planet_fav)
+#     db.session.commit()
+#     return jsonify(new_planet_fav.serialize()), 201
 
 
 @app.route('/user/<int:user_id>/favorites_characters/<int:character_id>', methods=['POST'])
