@@ -213,6 +213,25 @@ def vehicles_by_id(vehicle_id):
       return jsonify({"msg": "Internal Server Error", "error": str(e)}), 500
 
 
+@app.route('/user/<int:user_id>/favorite', methods=['GET'])
+def favorites_by_id(user_id):
+  try:
+       user_favorites_character=Fav_character.query.filter_by(user_id=user_id).all()
+       user_favorites_planets=Fav_planet.query.filter_by(user_id=user_id).all()
+       favorites= user_favorites_character + user_favorites_planets
+       
+       if not favorites:
+           return jsonify({"msg": "Favoritos no encontrados"}), 404
+       
+       return jsonify([fav.serialize() for fav in favorites])
+  
+  except Exception as e: 
+      print(f"Error al obtener favorito: {e}")
+      return jsonify({"msg": "Internal Server Error", "error": str(e)}), 500
+  
+
+
+
 
 #POST
 #POST usuario

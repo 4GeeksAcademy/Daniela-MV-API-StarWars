@@ -90,6 +90,15 @@ class Fav_character(db.Model):
     user: Mapped['User'] = relationship(back_populates="favorite_character")
     character: Mapped['Characters'] = relationship(back_populates='favorite_by_links')
 
+    def serialize(self):
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "character_id": self.character_id,
+            "user": self.user.serialize(),
+            "character": self.character.serialize()
+        }
+
     
 class Fav_planet(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -97,3 +106,12 @@ class Fav_planet(db.Model):
     planet_id: Mapped[int] = mapped_column(ForeignKey("planets.id"))
     user: Mapped['User'] = relationship(back_populates="favorite_planet")
     planet: Mapped['Planets'] = relationship(back_populates='favorite_planet_by_links')   
+
+    def serialize(self):
+     return {
+         "id": self.id,
+         "user_id": self.user_id,
+         "planet_id": self.planet_id,
+         "user": self.user.serialize(),
+         "planet": self.planet.serialize()
+     }
